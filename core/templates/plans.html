@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block start %}
+
+<!-- <div class="h-64 grid grid-rows-3 grid-flow-col gap-4"> -->
+<section class="text-gray-600 body-font p-6">
+
+    <div class="container px-5 py-24 mx-auto">
+        <div class="flex flex-wrap w-full mb-20">
+            <div class="lg:w-1/2 w-full mb-6 lg:mb-0">
+                <h1 class="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">Our Membership Plans</h1>
+                <div class="h-1 w-20 bg-indigo-500 rounded"></div>
+            </div>
+        </div>
+        <div class="flex flex-wrap -m-4">
+            {% for plan in plans %}
+            <div class="xl:w-1/4 md:w-1/2 p-4">
+                <div class="rounded-lg shadow-lg overflow-hidden mb-4">
+                    <div class="px-6 py-8 bg-white dark:bg-gray-800 sm:p-10 sm:pb-6">
+                        <div class="flex justify-center">
+                            <span
+                                class="inline-flex px-4 py-1 dark:text-white rounded-full text-sm leading-5 font-semibold tracking-wide uppercase">
+                                {{plan.subsription_name}}
+                            </span>
+                        </div>
+                        <div class="mt-4 flex justify-center text-6xl leading-none font-extrabold dark:text-white">
+                            <span class="ml-1 mr-3 text-xl leading-8 font-medium text-gray-500 dark:text-gray-400">
+                                from
+                            </span>
+                            Rs. {{plan.subcription_price}}
+
+                        </div>
+                    </div>
+                    <div class="px-6 pt-6 pb-8 bg-white dark:bg-gray-800 sm:p-10 sm:pt-6">
+                        <ul>
+                            <li class="mt-4 flex items-start">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-6 w-6 text-green-500" stroke="currentColor" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <p class="ml-3 text-base leading-6 text-gray-700 dark:text-gray-200">
+                                    Watch Unlimited content for {{plan.subsription_days}} days
+                                </p>
+                            </li>
+
+
+                        </ul>
+                        <div class="mt-6 rounded-md shadow">
+                            {% if  not request.user.is_authenticated %}
+                            <a href="{% url 'login' %}"
+                                class="flex items-center justify-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                                Buy
+                            </a>
+
+                            {% else %}
+                            <button onclick="loadPayment('{{plan.subcription_price}}' , '{{plan.order_id}}' , '{{plan.id}}')" class="flex items-center justify-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                                Buy
+                        </button>
+
+                            {% endif  %}
+
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+
+
+function loadPayment(amount , order_id , subsription_id){
+    console.log('{{KEY_ID}}')
+    var options = {
+        "key": "{{KEY_ID}}", // Enter the Key ID generated from the Dashboard
+        "amount": parseInt(amount) * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "Video App",
+        "description": "Buy Membership",
+        
+        "order_id": order_id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response) {
+
+           
+            window.location.href =  `/success/?subsription_id=${subsription_id}&payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}`;
+        
+        },
+       
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+    });
+
+    rzp1.open();
+        // e.preventDefault();
+    // document.getElementById('rzp-button1').onclick = function (e) {
+        
+    // }
+}
+
+    
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block start %}
+
+
+<header class="bg-gray-800" x-data="{ isOpen: false }" style="background-image: url('/media/bg.jpg')">
+    <section class="flex items-center justify-center" style="height: 500px;">
+        <div class="text-center">
+            <p class="text-xl font-medium tracking-wider text-gray-300">Welcome to Moviews World</p>
+            <h2 class="mt-6 text-3xl font-bold text-white md:text-5xl">Watch Ton of movies Here, <br> At very ease
+                adipiscing elit</h2>
+
+            <div class="flex justify-center mt-8">
+                <a class="px-8 py-2 text-lg font-medium text-white transition-colors duration-300 transform bg-indigo-600 rounded hover:bg-indigo-500"
+                    href="{% url 'login' %}">Get In Touch</a>
+            </div>
+        </div>
+    </section>
+</header>
+
+
+
+ 
+
+
+
+<section class="text-gray-600 body-font">
+    <div class="container px-5 py-24 mx-auto">
+     
+      <div class="flex flex-wrap w-full mb-20">
+        <div class="lg:w-1/2 w-full mb-6 lg:mb-0">
+          <h1 class="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">Videos
+          </h1>
+          <div class="h-1 w-20 bg-indigo-500 rounded"></div>
+        </div>
+        <p class="lg:w-1/2 w-full leading-relaxed text-gray-500">Your entertainment zone is here. Buy our membership</p>
+      </div>
+      <form style="padding:50px" class="container flex flex-wrap -m-4">
+
+      <div class="xl:w-1/4 md:w-1/2 p-4">
+        
+        <div class="flex border-grey-light border" style="margin-top: 23px;">
+         
+
+          <input name="search" class="w-full rounded ml-1" style="padding:5px" type="text" placeholder="Search...">
+          
+        </div>
+        </div>
+
+        <div class="xl:w-1/4 md:w-1/2 p-4">
+          <label>Category</label>
+          <select name="category" style="width:100% !important; border:1px solid #ccc;padding:5px">
+            <option value="choose">Choose</option>
+            
+            {% for c in category %}
+            <option value="{{c.id}}">{{c.category}}</option>
+            {% endfor %}
+          </select>
+          </div>
+
+          <div class="xl:w-1/4 md:w-1/2 p-4">
+          <label>Language</label>
+
+            <select name="language" style="width:100% !important; border:1px solid #ccc;padding:5px">
+              <option value="choose">Choose</option>
+              {% for l in language %}
+              <option value="{{l.id}}">{{l.language}}</option>
+              {% endfor %}
+            </select>
+            </div>
+
+            <div class="xl:w-1/4 md:w-1/2 p-4">
+
+              <button class="px-8 py-2 text-lg font-medium text-white transition-colors duration-300 transform bg-indigo-600 rounded hover:bg-indigo-500"
+              >Search</button>
+              </div>
+          
+            </form>
+
+            {% if not movie_series_objs %}
+            <p style="margin-left: 50px;">No movies found</p>
+            {% endif %}
+
+   
+      <div class="flex flex-wrap -m-4" style="padding:50px">
+          {%  for movie_series_obj in movie_series_objs %}
+        <div class="xl:w-1/4 md:w-1/2 p-4">
+          <div class="bg-gray-100 p-6 rounded-lg">
+            <img class="h-40 rounded w-full object-cover object-center mb-6" src="/media/{{movie_series_obj.image}}" alt="content">
+            <h3 class="tracking-widest text-indigo-500 text-xs font-medium title-font">{{movie_series_obj.video_category.category}}</h3>
+            <h2 class="text-lg text-gray-900 font-medium title-font mb-4"><a href="{% url 'show_movies' movie_series_obj.id %}">{{movie_series_obj.series_name}}</a></h2>
+            <p class="leading-relaxed text-base">
+                {{movie_series_obj.series_description|safe}}
+            </p>
+          </div>
+        </div>
+      
+        {% endfor %}
+     
+      </div>
+    </div>
+  </section>
+
+  </div>
+  
+
+  <div class="container w-full mx-auto media-container mb-5">
+    <img src="https://www.hulu.com/static/hitch/s3/2019-01/1600-content-grid-2X_1.jpg?DGw4IvJIypp7ynwDtnAMYw17F719vdLP"
+         alt="Hulu Live TV, The Handmaid's Tale, The Good Doctor, Brooklyn Nine-Nine, Teen Titans Go, Transformers"
+      class="w-full h-auto flex-shrink-0 opacity: 1"
+    />
+  </div>
+
+
+  <script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"></script>
+
+  {% if searched %}
+  <script >
+    $('html,body').animate({scrollTop: 700},"fast");
+  </script>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block start %}
+<link rel="stylesheet" href="/media/css/video.css">
+
+<section class="text-gray-600 body-font">
+  <div class="container px-5 py-24 mx-auto flex flex-wrap">
+    <div class="flex flex-wrap -mx-4 mt-auto mb-auto lg:w-1/2 sm:w-2/3 content-start sm:pr-10">
+      <div class="w-full sm:p-4 px-4 mb-6">
+        <h1 style="font-size: 40px;font-weight:bolder; color:#fff !important">{{video_series.series_name}}</h1>
+        <h1 class="title-font font-medium text-xl mb-2 text-gray-900" style="font-size:bold;color:#fff !important">
+          {{video_series.video_category.category}}</h1>
+        <div class="leading-relaxed" style="font-size:bold;color:#fff !important">
+          {{video_series.series_description|safe}}</div>
+      </div>
+      <div class="flex justify-center">
+        {% if not video_series.active_membership  %}
+        <a href="{% url 'watch_now' video_series.id %}"
+          class="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+          Watch Now
+        </a>
+        {% else %}
+        <a href="{% url 'plans'%}"
+          class="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">
+          Buy Membership
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="lg:w-1/2 sm:w-1/3 w-full rounded-lg overflow-hidden mt-6 sm:mt-0">
+      <img class="object-cover object-center w-full h-full" src="/media/{{video_series.image}}" alt="stats">
+    </div>
+  </div>
+</section>
+
+
+
+<div class="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">
+  <!--Card 1-->
+  {% for video_series_section in video_series_sections %}
+
+  <div class="rounded overflow-hidden shadow-lg" style="height:400px"  >
+    
+    {% if  video_series_section.can_watch %}
+    {% if video_series_section.image %}
+    <video id="video" style="height:200px" class="video" src="/media/{{video_series_section.video}}" type="video/mp4"
+      poster="/media/{{video_series_section.image}}" preload="none">
+    </video>
+    {% else %}
+    <video id="video" style="height:200px"  class="video" src="/media/{{video_series_section.video}}" type="video/mp4"
+      poster="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/best-movies-1606255499.jpg" preload="none">
+    </video>
+      {% endif %}
+      {% else %}
+      {% if video_series_section.image %}
+      <img src="/media/{{video_series_section.image}}">
+
+      {% else %}
+
+      <img src="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/best-movies-1606255499.jpg">
+      
+      {% endif %}
+      {% endif %}
+   
+
+
+
+    
+      <div class="px-6 py-4" {% if video_series_section.can_watch  %} style="margin-top: 100px;" {% else %}style="margin-top: 50px;" {% endif %}>
+        <div class="font-bold text-xl mb-2" style="color:#fff  !important">
+          {{video_series_section.video_series_section_name}}
+          | <span
+            class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-green-600 rounded-full">Promo
+            Watch</span>
+        </div>
+
+      </div>
+
+  
+
+
+  </div>
+  {% endfor %}
+
+
+</div>
+</div>
+
+
+
+<div style="margin-top:40px"></div>
+
+
+<style>
+  body {
+    color: #fff !important
+  }
+</style>
+
+
+
+
+<script>
+  var videoPlayer = function () {
+    "use strict";
+
+    function el(id) {
+      return document.getElementById(id);
+    }
+
+    var vid = el("video"),
+
+      btnState = el("btnState"),
+      btnReplay = el("btnReplay"),
+      btnSound = el("btnSound"),
+      sliderVolume = el("sliderVolume"),
+
+      barSeeker = el("barSeeker"),
+      barBuffer = el("barBuffer"),
+      barProgress = el("barProgress"),
+
+      timePlayed = el("timePlayed"),
+      timeDuration = el("timeDuration"),
+      timeBubble = el("timeBubble"),
+
+      thePosition,
+      theMinutes,
+      theSeconds,
+      theTime;
+
+    var readableTime = function (t) {
+      theMinutes = "0" + Math.floor(t / 60); // Divide seconds to get minutes, add leading zero
+      theSeconds = "0" + parseInt(t % 60); // Get remainder seconds
+      theTime = theMinutes.slice(-2) + ":" + theSeconds.slice(-
+        2); // Slice to two spots to remove excess zeros
+      return theTime;
+    };
+
+    /* Video controls */
+
+    var togglePlay = function () {
+      if (vid.paused) {
+        vid.play();
+        btnState.firstElementChild.className = "fontawesome-pause";
+        btnReplay.style.display = "none";
+        vid.style.opacity = 1;
+      } else {
+        vid.pause();
+        btnState.firstElementChild.className = "fontawesome-play";
+      }
+    };
+
+    var toggleSound = function () {
+      if (vid.muted) {
+        vid.muted = false;
+        sliderVolume.value = 10;
+        btnSound.firstElementChild.className = "fontawesome-volume-up";
+      } else {
+        vid.muted = true;
+        sliderVolume.value = 0;
+        btnSound.firstElementChild.className = "fontawesome-volume-off";
+      }
+    };
+
+    /* Update seeker value and time played */
+    var updateTimeDisplay = function () {
+      var timePercent = (100 / vid.duration) * vid.currentTime;
+      barSeeker.value = timePercent;
+      barProgress.value = timePercent;
+      timePlayed.innerHTML = readableTime(vid.currentTime);
+    };
+
+    var replayVideo = function () {
+      vid.currentTime = 0;
+      btnState.firstElementChild.className = "fontawesome-pause";
+      el("likeThis").classList.remove("wiggle");
+      btnReplay.style.display = "none";
+      vid.play();
+    };
+
+    /* Event listeners */
+
+    // Toggle buttons
+    vid.addEventListener("click", togglePlay);
+    btnState.addEventListener("click", togglePlay);
+    btnSound.addEventListener("click", toggleSound);
+
+    // Volume slider
+    sliderVolume.addEventListener("change", function () {
+      var theVolume = sliderVolume.value / 10;
+      vid.volume = theVolume;
+
+      if (theVolume === 0) {
+        btnSound.firstElementChild.className = "fontawesome-volume-off";
+      } else if (theVolume === 1) {
+        btnSound.firstElementChild.className = "fontawesome-volume-up";
+      } else {
+        btnSound.firstElementChild.className = "fontawesome-volume-down";
+      }
+    });
+
+    // Replay button, something needs fixing, but I forget what
+    vid.addEventListener("ended", function () {
+      btnReplay.style.display = "block";
+      btnState.firstElementChild.className = "fontawesome-play";
+    });
+
+
+    /* Event listeners for the seek bar */
+
+    // Move seeker bar
+    vid.addEventListener("timeupdate", updateTimeDisplay);
+
+    // Allow click on seeker to change video position
+    barSeeker.addEventListener("change", function () {
+      thePosition = vid.duration * (barSeeker.value / 100);
+      vid.currentTime = thePosition;
+    });
+
+    // Pause video and seeker update while seeker is being interacted with
+    barSeeker.addEventListener("mousedown", function () {
+      vid.pause();
+      vid.removeEventListener("timeupdate", updateTimeDisplay);
+    });
+
+    barSeeker.addEventListener("mouseup", function () {
+      vid.play();
+      btnState.firstElementChild.className = "fontawesome-pause";
+      vid.addEventListener("timeupdate", updateTimeDisplay);
+    });
+
+    // Buffer bar
+    vid.addEventListener("timeupdate", function () {
+      var bufferPercent = (100 / vid.duration) * vid.buffered.end(vid.buffered.length - 1);
+      barBuffer.value = bufferPercent;
+    });
+
+    // Video length
+    vid.addEventListener('loadeddata', function () {
+      timeDuration.innerHTML = readableTime(vid.duration);
+    });
+
+    // Time bubble on seeker
+    var bubblePop = function (e) {
+      var cursorPos = (e.clientX - (barSeeker.getBoundingClientRect().left)) / (barSeeker.offsetWidth);
+      var seekTime = cursorPos * vid.duration;
+
+      if (seekTime) {
+        timeBubble.innerHTML = readableTime(seekTime);
+        timeBubble.style.left = (e.clientX - barSeeker.getBoundingClientRect().left + 78) + "px";
+        timeBubble.style.display = "block";
+      }
+    };
+
+    barSeeker.addEventListener("mousemove", bubblePop);
+
+    barSeeker.addEventListener("mouseout", function () {
+      timeBubble.style.display = "none";
+    });
+
+    vid.addEventListener("timeupdate", function () {
+      theTime = parseInt(vid.currentTime);
+      if (vid.duration - theTime < 10 && vid.duration - theTime > 9) {
+        el("likeThis").classList.add("wiggle");
+      }
+    });
+
+    // Video playlist
+    var playlistAnchor = document.querySelectorAll(".next-video"),
+      imageURL = document.querySelectorAll(".next-video img");
+
+    var prevTitle = document.querySelector(".video-title"),
+      prevDescription = document.querySelector(".description");
+
+    for (var i = 0; i < 4; i++) {
+      (function () {
+        var k = i;
+
+        playlistAnchor[i].addEventListener("click", function (e) {
+          e.preventDefault();
+
+          var playedVideo = document.querySelector(".played-video");
+          playedVideo.classList.remove("slide");
+          playedVideo.classList.remove("played-video");
+
+          // Update video
+          vid.poster = imageURL[k].src;
+          vid.src = playlistAnchor[k].href;
+
+          // Update info
+          prevTitle.innerHTML = this.querySelector(".next-video-title").textContent;
+          prevDescription.innerHTML = this.querySelector(".next-video-description")
+            .textContent;
+
+          // Reset and play video
+          replayVideo();
+
+          this.classList.add("played-video");
+          playedVideo.classList.add("slide");
+
+          setTimeout(function () {
+            playlistAnchor[k].parentNode.appendChild(playlistAnchor[k]);
+          }, 500);
+        });
+
+      }());
+    }
+
+  }();
+</script>
+
+
+
+
+
+
+{% endblock %}

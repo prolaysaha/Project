@@ -1,0 +1,41 @@
+
+        {% extends "base.html" %}
+        {% block start %}
+        <section class="text-gray-700 mt-9 mb-8" style="margin-top:100px">
+                        <div
+                            class="container flex flex-col items-start px-5 py-16 mx-auto lg:items-center md:flex-row lg:px-28">
+                            <div class="w-full mb-10 lg:w-5/6 lg:max-w-lg md:w-1/2">
+                                <img class="object-cover object-center rounded" alt="hero"
+                                    src="https://images.pexels.com/photos/5691160/pexels-photo-5691160.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940">
+                            </div>
+                            <div class="flex flex-col items-start text-left lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16">
+                                <h1
+                                    class="mb-8 text-2xl font-bold tracking-tighter text-black lg:text-left lg:text-5xl title-font">
+                                    Your payment was successfull.</h1>
+                                <p class="mb-8 text-base leading-relaxed text-left text-gray-700 ">
+                                    Enjoy your prime membership
+                                </p>
+                                
+                            </div>
+                        </div>
+                    </section>
+
+
+
+
+                    <script>
+
+                    setTimeout(()=>{
+                        window.location.href = '/'
+                    } , 2500)
+
+
+                    </script>
+
+
+
+
+
+
+       {% endblock %}
+                
